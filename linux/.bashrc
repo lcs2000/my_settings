@@ -10,7 +10,7 @@ fi
 # Setting the color of promt to red when login with root account,
 # and green when login with non root account.
 export PS1="\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]"
-export PATH=/usr/local/bin:/sbin/:/usr/sbin/:/home/Jack/tools/:$PATH
+export PATH=/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
 export SVN_EDITOR=vi
 if [ -e /usr/share/terminfo/x/xterm-256color ]; then
         export TERM='xterm-256color'
@@ -26,6 +26,7 @@ fi
 #export LC_ALL="en_US.UTF-8"
 #export TMUX_POWERLINE_PATCHED_FONT_IN_USE=true
 export EDITOR='vim'
+export CCACHE_DIR=/mnt/home/public/.ccache
 unset SSH_ASKPASS
 #---------------------------------------------------------------------------
 #------                         alias                                -------
@@ -35,6 +36,7 @@ unset SSH_ASKPASS
 DEF_PATH=$PATH
 export DEF_PATH
 export PATH
+export USE_CCACHE=1
 
 # for 97401c1 target board
 alias stb97401r40=' export PATH=/opt/toolchains/crosstools_sf-linux-2.6.12.0_gcc-3.4.6-20_uclibc-0.9.28-20050817-20070131/bin:$DEF_PATH; export LINUX=/home/jack/svn/titanium/trunk/2612-4.0/stblinux-2.6.12; cd /home/jack/svn/titanium/trunk/refsw-20070327.97401; /bin/echo REF:source ./build_brutus.bash pisces101 y S21_VOD_CLIENT_SUPPORT=y DDR_256M=y VERIMATRIX_DRM=y install'
@@ -64,7 +66,7 @@ alias kernel='cd /home/jack/svn/titanium/trunk/2612-4.0/'
 #---------------------------------------------------------------------------
 #------                         fucntion                             -------
 #---------------------------------------------------------------------------
-DISK_LETTER="Z:"
+DISK_LETTER="T:"
 # Source global definitions
 ## shell function to find file
 ## Usage:
@@ -213,7 +215,7 @@ fs()
         shift
         option=$*
     fi      
-    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P4 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
+    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
                 | awk -F':' -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
                         BEGIN {printf(\"Press <WIN>+Q and type \\\"np\\\" to open file in notepad++.\\\n\")}
                         {
@@ -226,7 +228,7 @@ fs()
                         }
                         END {printf(\"\\\n\\\n\\\nTotal %d files\\\n\", NR)}'"
     echo -e "( \"Regular expression\" style wildcard. Ex: fs 'in.*de' )\n\n"
-    time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P4 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option "$pattern" \
+    time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option "$pattern" \
         | awk -F':' -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
                         BEGIN {printf("Press <WIN>+Q and type \"np\" to open file in notepad++.\n\n\n")}
                         {
@@ -272,7 +274,7 @@ fsc()
 # special version of fs(): find pattern only in '*.h'
 fsh()
 {
-    fs $* --include='*.h'
+    fs $* --include=\'\*.h\'
 }
 
 # special version of fs(): find function declaration in *.c or *.cpp and *.h

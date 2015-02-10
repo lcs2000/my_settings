@@ -8,11 +8,12 @@ fi
 # User specific aliases and functions
 
 
+
 ########################################################################
 ### Common settings for fs() and ff()
 ########################################################################
 NPROC=`nproc`       # default to use all Processors, change it to a lower value if it makes heavy load
-DISK_LETTER="y:"    # change for different drive
+DISK_LETTER="U:"    # change for different drive
 
 ### Special settings for Mock. Ignored in normal server
 SDK_VER=sdk2_13.1   # change version if necessary
@@ -128,7 +129,17 @@ fs()
         shift
         option=$*
     fi      
-    echo -e "time find -type d \( -name '\.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P$NPROC grep -n -I --exclude='$CMD_FILE' --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
+    
+    # The following varialbe set and 'tee -a' are only needed in Mock environment. But also safe in normal environment.
+    echo WINDOWS_PROGRAM=$WINDOWS_PROGRAM > $CMD_FILE
+    echo DISK_LETTER=$DISK_LETTER >> $CMD_FILE
+    echo D_HOME=$D_HOME >> $CMD_FILE
+    echo DISK_ROOT=$DISK_ROOT >> $CMD_FILE
+    echo LINE_OUTPUT_FORMAT=$LINE_OUTPUT_FORMAT >> $CMD_FILE
+    echo LN_NUM_FORMAT=$LN_NUM_FORMAT >> $CMD_FILE
+    
+    echo -e "fs v2.0 - Find strings. Use 'fshelp' to check the usage.\n"
+    echo -e "time find -type d \( -name '\.svn' -o -name 'AppLibs' -o -name 'log' -o -path './BSEAV/bin' -o -path './proc' -o -path './sys' \) -prune -o -type f -print0 | xargs -0 -P$NPROC grep -n -I --exclude='$CMD_FILE' --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
     | awk -F':' -v prog=\"$WINDOWS_PROGRAM\" -v disk=$DISK_LETTER -v root_path=\`pwd | sed 's;'\$HOME';'\$D_HOME';' | sed 's;'^';'\$DISK_ROOT';'\` -v fmt=$LINE_OUTPUT_FORMAT -v fmt_normal=$LINE_OUTPUT_NORMAL -v lnfmt=\"$LN_NUM_FORMAT\" -v last_path="" '
         BEGIN {}
         {
@@ -142,15 +153,15 @@ fs()
             printf(\"%s%s%s%s%s%s%s\\\n\", fmt, prog, disk, path, lnfmt, \$2, fmt_normal);
             \$1=\"\";
             \$2=\"\";
-            printf(\"%s\\\n\", \$0);
+            printf(\"%s\\\n\", \$3);
         }
-        END {printf(\"\\\n\\\nTotal %d occurrences in %d files\\\nRun again:\\\nsource $CMD_FILE\\\n\", NR, file_count)}'" | tee $CMD_FILE
+        END {printf(\"\\\n\\\nTotal %d occurrences in %d files\\\nRun again:\\\nsh $CMD_FILE\\\n\", NR, file_count)}'" | tee -a $CMD_FILE
     echo -e "( \"Regular expression\" style wildcard. Ex: fs 'in.*de' to find 'inde', 'include', 'inc abde',... )\n\n"
 
-    source $CMD_FILE
-	#rm -rf .fs_cmd_file  #keep it to run again!
+    /bin/sh $CMD_FILE
+    #rm -rf .fs_cmd_file  #keep it to run again!
 	
-	# restor GREP_COLORS
+    # restor GREP_COLORS
     export GREP_COLORS=$cur_grep_color
 }
 

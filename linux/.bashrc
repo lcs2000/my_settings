@@ -26,7 +26,8 @@ fi
 #export LC_ALL="en_US.UTF-8"
 #export TMUX_POWERLINE_PATCHED_FONT_IN_USE=true
 export EDITOR='vim'
-export CCACHE_DIR=/mnt/home/public/.ccache
+export CCACHE_DIR=/home/jack/.ccache
+export CCACHE_SIZE=32G
 unset SSH_ASKPASS
 #---------------------------------------------------------------------------
 #------                         alias                                -------
@@ -215,7 +216,7 @@ fs()
         shift
         option=$*
     fi      
-    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
+    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out'\) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
                 | awk -F':' -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
                         BEGIN {printf(\"Press <WIN>+Q and type \\\"np\\\" to open file in notepad++.\\\n\")}
                         {

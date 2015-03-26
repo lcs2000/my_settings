@@ -26,7 +26,7 @@ fi
 #export LC_ALL="en_US.UTF-8"
 #export TMUX_POWERLINE_PATCHED_FONT_IN_USE=true
 export EDITOR='vim'
-export CCACHE_DIR=/home/jack/.ccache
+export CCACHE_DIR=$HOME/.ccache
 export CCACHE_SIZE=32G
 unset SSH_ASKPASS
 #---------------------------------------------------------------------------

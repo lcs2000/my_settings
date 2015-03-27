@@ -214,7 +214,7 @@ fs()
         shift
         option=$*
     fi      
-    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out'\) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
+    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out'\) -prune -o -type f -print0 | xargs -0 -P0 grep -nIH --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
                 | awk -F':' -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
                         BEGIN {printf(\"Press <WIN>+Q and type \\\"np\\\" to open file in notepad++.\\\n\")}
                         {
@@ -227,7 +227,7 @@ fs()
                         }
                         END {printf(\"\\\n\\\n\\\nTotal %d files\\\n\", NR)}'"
     echo -e "( \"Regular expression\" style wildcard. Ex: fs 'in.*de' )\n\n"
-    time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P0 grep -nI --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option "$pattern" \
+    time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' \) -prune -o -type f -print0 | xargs -0 -P0 grep -nIH --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option "$pattern" \
         | awk -F':' -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
                         BEGIN {printf("Press <WIN>+Q and type \"np\" to open file in notepad++.\n\n\n")}
                         {

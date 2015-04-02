@@ -20,14 +20,11 @@ fs()
                 {
                     path=root_path"/"$1
                     gsub("/", "\\", path)
-
                     printf("%s%s -n%s \n", disk, path, $2)
 
                     # remove "...:...:"
-                    content=$0
-                    sub("^[^:]*:[^:]*:","",content)
-
-                    printf("%s\n", content)
+                    sub("^[^:]*:[^:]*:","", $0)
+                    printf("%s\n", $0)
                 }
                 END {printf("\n\n\nTotal %d files\n", NR)}'
 }

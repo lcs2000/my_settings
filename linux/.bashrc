@@ -10,7 +10,7 @@ fi
 # Setting the color of promt to red when login with root account,
 # and green when login with non root account.
 export PS1="\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]"
-export PATH=/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
+export PATH=`pwd`/bin:/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
 export SVN_EDITOR=vi
 if [ -e /usr/share/terminfo/x/xterm-256color ]; then
         export TERM='xterm-256color'
@@ -152,54 +152,7 @@ fstr()
 
 fshelp()
 {
-/bin/echo -e "**********"
-/bin/echo -e "fs"
-/bin/echo -e "~Jackie Yeh 2006/12/15"
-/bin/echo -e "**********"
-/bin/echo -e "shell function to find string in all subdirectory, exclude:"
-/bin/echo -e " -- binary files"
-/bin/echo -e " -- all files under .svn"
-/bin/echo -e " -- *.d"
-/bin/echo -e " "
-/bin/echo -e "Usage:"
-/bin/echo -e "     fs <String> [other grep options]"
-/bin/echo -e "Default options:"
-/bin/echo -e "     -n      print line number with output lines"
-/bin/echo -e "     -r      handle directories recursive"
-/bin/echo -e "     -I      skip binary files"
-/bin/echo -e "     ---color=always      Always use colors on match"
-/bin/echo -e "Possible options:"
-/bin/echo -e "     -w      match only whole words"
-/bin/echo -e "     -i      ignore case distinctions"
-/bin/echo -e "     -e      use PATTERN as a regular expression"
-/bin/echo -e "     -l      only print FILE names containing matches"
-/bin/echo -e "     -NUM    print NUM lines of output context, NUM can be 1, 2, 3, ..."
-/bin/echo -e "     --include=PATTERN     files that match PATTERN will be examined"
-/bin/echo -e "     --exclude=PATTERN     files that match PATTERN will be skipped."
-/bin/echo -e "Example:"
-/bin/echo -e " --Find 'layers_dbglist' in all subdirectories"
-/bin/echo -e "     fs layers_dbglist"
-/bin/echo -e " --Find 'layers_dbglist' and "match only whole words" in all subdirectories"
-/bin/echo -e "     fs layers_dbglist -w"
-/bin/echo -e " --Find 'layers_dbglist' and "ignore the case" in all subdirectories"
-/bin/echo -e "     fs layers_dbglist -i"
-/bin/echo -e " --Find 'layers_dbglist' and "print only filenames" in all subdirectories"
-/bin/echo -e "     fs layers_dbglist -l"
-/bin/echo -e " --Find 'layers_dbglist' and "show 3 lines context" in all subdirectories"
-/bin/echo -e "     fs layers_dbglist -3"
-/bin/echo -e " --Find 'layers_dbglist' in \"*.c;*.cpp;*.h\" under all subdirectories"
-/bin/echo -e "     fs layers_dbglist --include='*.c*' --include='*.h'"
-/bin/echo -e " --Find 'layers_dbglist' excluding \"*.h\" under all subdirectories"
-/bin/echo -e "     fs layers_dbglist --exclude='*.h'"
-/bin/echo -e " --Find 'not modal' under all subdirectories"
-/bin/echo -e "     fs 'not modal'"
-/bin/echo -e " "
-/bin/echo -e " Variants of fs:"
-/bin/echo -e "     fsc(): find pattern only in '*.c'"
-/bin/echo -e "     fsh(): find pattern only in '*.h'"
-/bin/echo -e "     fsd(): find <function declaration> or <structure definition> in *.c or *.cpp or *.h"
-/bin/echo -e "     fsds(): find <structure definition> in *.c or *.cpp or *.h"
-
+    fs.sh -h
 }
 
 
@@ -213,39 +166,7 @@ fshelp()
 
 fs()
 {
-    pattern=$1
-    option=
-    if [ "$#" -gt "1" ] ; then
-        shift
-        option=$*
-    fi      
-    echo -e "time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out' -o -name '.git' \\) -prune -o -type f -print0 | xargs -0 -P$NPROC grep -nIH --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option '$pattern' \
-                | awk -F':' -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
-                        BEGIN {printf(\"Press <WIN>+Q and type \\\"np\\\" to open file in notepad++.\\\n\")}
-                        {
-                            path=\"$DISK_LETTER\"root_path\"/\"\$1
-                            gsub(\"/\", \"\\\\\\\", path)
-                            printf(\"%s%s -n%s\\\n\", disk, path, \$2)
-							\$1=\"\"
-							\$2=\"\"
-                            printf(\"%s\\\n\", \$0)
-                        }
-                        END {printf(\"\\\n\\\n\\\nTotal %d files\\\n\", NR)}'"
-    echo -e "( \"Regular expression\" style wildcard. Ex: fs 'in.*de' )\n\n"
-    time find -type d \( -name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out' -o -name '.git' \) -prune -o -type f -print0 | xargs -0 -P$NPROC grep -nIH --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --color=always $option "$pattern" \
-        | awk -F':' -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
-                        BEGIN {printf("Press <WIN>+Q and type \"np\" to open file in notepad++.\n\n\n")}
-                        {
-                            path=root_path"/"$1
-                            gsub("/", "\\", path)
-                            printf("%s%s -n%s \n", disk, path, $2)
-                            # remove "...:...:"
-                            #sub("^.*:.*:","",$0)
-							$1=""
-							$2=""
-                            printf("%s\n", $0)
-                        }
-                        END {printf("\n\n\nTotal %d files\n", NR)}'
+    fs.sh "$@"
 }
 
 
@@ -265,20 +186,12 @@ fsu()
 # special version of fs(): find pattern only in '*.c'
 fsc()
 {
-    pattern=$1
-    option=
-    if [ "$#" -gt "1" ] ; then
-        shift
-        option=$*
-    fi        
-    echo -e "grep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always --include='*.c' $option '$pattern' * |grep -v '.svn' | convertpath:\n"
-    grep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always --include='*.c' $option "$pattern" * |grep -v '.svn' | convertpath
+    fs.sh "$@" --include=\'\*.c\' --include=\'\*.cpp\'
 }
-
 # special version of fs(): find pattern only in '*.h'
 fsh()
 {
-    fs $* --include=\'\*.h\'
+    fs.sh "$@" --include=\'\*.h\'
 }
 
 # special version of fs(): find function declaration in *.c or *.cpp and *.h

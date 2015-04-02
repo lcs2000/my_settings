@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NPROC=`nproc`
 DISK_LETTER=T:
@@ -13,7 +13,7 @@ fs()
         shift
         option="$*"
     fi
-    find -type d \( ${EXCLUDE_DIRS} \) -prune -o -type f -print0 \
+    time find -type d \( ${EXCLUDE_DIRS} \) -prune -o -type f -print0 \
         | xargs -0 -P$NPROC grep -nIH ${EXCLUDE_FILES} --color=always $option "$pattern" \
         | awk -F':' -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
                 BEGIN {printf("Press <WIN>+Q and type \"np\" to open file in notepad++.\n\n\n")}

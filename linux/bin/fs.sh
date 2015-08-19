@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NPROC=`nproc`
+NPROC=2
 DISK_LETTER=T:
-EXCLUDE_DIRS="-name '.svn' -o -name 'AppLibs' -o -path './BSEAV/bin' -o -path './out' -o -name '.git' -o -name '.repo'"
+EXCLUDE_DIRS="-name .svn -o -name AppLibs -o -path ./BSEAV/bin -prune -o -path ./out -o -name .git -o -name .repo"
 EXCLUDE_FILES="--exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp'"
 
 fs()

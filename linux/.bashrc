@@ -10,7 +10,7 @@ fi
 # Setting the color of promt to red when login with root account,
 # and green when login with non root account.
 export PS1="\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]"
-export PATH=`pwd`/bin:/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
+export PATH=/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
 export SVN_EDITOR=vi
 if [ -e /usr/share/terminfo/x/xterm-256color ]; then
         export TERM='xterm-256color'
@@ -147,6 +147,36 @@ svnrm()
 fstr()
 {
     find -name $1 | xargs grep $3 $4 $5 -n -E $2
+}
+
+gitmod()
+{
+    /bin/echo "git status -s $*| awk -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
+                        BEGIN {printf(\"\\n\\n\")}
+			{
+			    status=substr(\$0, 0, 1);
+			    path=root_path\"/\"substr(\$0, 9);
+			    printf(\"-%s-\n%s%s\n\",status,disk,path)
+			}
+                        END {printf(\"\\n\\n\\nTotal %d files\\n\", NR)}' | sed 's;/;\\\\;g'"
+
+     git status -s $*| awk -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
+                        BEGIN {printf("\n\n")}
+                        { 
+                           status=substr($0, 0, 1);
+                           path=root_path"/"substr($0, 9);
+                           printf("-%s-\n%s%s\n",status,disk,path)
+                        }
+                        END {printf("\n\n\nTotal %d files\n", NR)}' | sed 's;/;\\;g'
+}
+
+gitmodt()
+{
+#    gitmod |grep '^Z:' | awk 'BEGIN{printf("\n\nTortoiseProc.exe /command:repostatus /path:\"")} {if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
+    if [ "$#" -gt "0" ] ; then
+        /bin/echo "Check for modifications in "$*
+    fi
+    gitmod $*|grep ^$DISK_LETTER | awk 'BEGIN{printf("Press <WIN>+Q and type \"gitmod\" to pop up TortoiseGIT window for modifications.\n\nTortoiseGitProc.exe /command:repostatus /path:\n\n\n\"")} {if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
 }
 
 

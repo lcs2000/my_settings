@@ -4,7 +4,7 @@ NPROC=2
 DISK_LETTER=T:
 EXCLUDE_DIRS="-name .svn -o -name AppLibs -o -path ./BSEAV/bin -prune -o -path ./out -o -name .git -o -name .repo"
 EXCLUDE_FILES="--exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp'"
-
+EDITOR="notepad++"
 fs()
 {
     pattern="$1"
@@ -15,12 +15,12 @@ fs()
     fi
     time find -type d \( ${EXCLUDE_DIRS} \) -prune -o -type f -print0 \
         | xargs -0 -P$NPROC grep -nIH ${EXCLUDE_FILES} --color=always $option "$pattern" \
-        | awk -F':' -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
+        | awk -F':' -v edit=$EDITOR -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
                 BEGIN {printf("Press <WIN>+Q and type \"np\" to open file in notepad++.\n\n\n")}
                 {
                     path=root_path"/"$1
                     gsub("/", "\\", path)
-                    printf("%s%s -n%s \n", disk, path, $2)
+                    printf("%s %s%s -n%s \n", edit, disk, path, $2)
 
                     # remove "...:...:"
                     sub("^[^:]*:[^:]*:","", $0)

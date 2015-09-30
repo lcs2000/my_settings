@@ -71,6 +71,7 @@ alias kernel='cd /home/jack/svn/titanium/trunk/2612-4.0/'
 #------                         fucntion                             -------
 #---------------------------------------------------------------------------
 DISK_LETTER="T:"
+EDITOR="notepad++"
 # Source global definitions
 ## shell function to find file
 ## Usage:
@@ -85,7 +86,7 @@ ff()
 {
     /bin/echo -e "time find \\( -path './BSEAV/bin' -o -name 'AppLibs' -o -name '.svn' -o -name '.git' -o -path './out' \\) -prune -o -name \"$1\" -print | sed 's;./;'`pwd`'/;' | sed 's;'\"$HOME\"';'\"$DISK_LETTER\"';' |sed 's;/;\\\\\;g'"
     /bin/echo -e "( \"shell style\" wildcard. Ex: ff '*fs*' )\n"
-    time find \( -path './BSEAV/bin' -o -name 'AppLibs' -o -name '.svn' -o -name '.git' -o -path './out' \) -prune -o -name "$1" -print | sed 's;./;'`pwd`'/;' | sed 's;'"$HOME"';'"$DISK_LETTER"';' |sed 's;/;\\;g'
+    time find \( -path ./BSEAV/bin -o -name AppLibs -o -name .svn -o -name .git -o -path ./out \) -prune -o -name "$1" -print | sed 's;./;'`pwd`'/;' | sed 's;'"$HOME"';'"$EDITOR ""$DISK_LETTER"';' |sed 's;/;\\;g'
 }
 
 svnmod()
@@ -151,24 +152,17 @@ fstr()
 
 gitmod()
 {
-    /bin/echo "git status -s $*| awk -v disk=$DISK_LETTER -v root_path=\`pwd| sed 's;'\"\$HOME\"';;'\` '
-                        BEGIN {printf(\"\\n\\n\")}
-			{
-			    status=substr(\$0, 0, 1);
-			    path=root_path\"/\"substr(\$0, 9);
-			    printf(\"-%s-\n%s%s\n\",status,disk,path)
-			}
-                        END {printf(\"\\n\\n\\nTotal %d files\\n\", NR)}' | sed 's;/;\\\\;g'"
-
      git status -s $*| awk -v disk=$DISK_LETTER -v root_path=`pwd| sed 's;'"$HOME"';;'` '
                         BEGIN {printf("\n\n")}
                         { 
-                           status=substr($0, 0, 1);
-                           path=root_path"/"substr($0, 9);
+						   status=$1;
+                           path=root_path"/"$2;
+						   gsub("/", "\\", path)
                            printf("-%s-\n%s%s\n",status,disk,path)
                         }
-                        END {printf("\n\n\nTotal %d files\n", NR)}' | sed 's;/;\\;g'
+                        END {printf("\n\n\nTotal %d files\n", NR)}'
 }
+
 
 gitmodt()
 {
@@ -176,7 +170,10 @@ gitmodt()
     if [ "$#" -gt "0" ] ; then
         /bin/echo "Check for modifications in "$*
     fi
-    gitmod $*|grep ^$DISK_LETTER | awk 'BEGIN{printf("Press <WIN>+Q and type \"gitmod\" to pop up TortoiseGIT window for modifications.\n\nTortoiseGitProc.exe /command:repostatus /path:\n\n\n\"")} {if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
+    gitmod $*|grep ^$DISK_LETTER | awk 'BEGIN{
+			printf("Press <WIN>+Q and type \"gitmod\" to pop up TortoiseGIT window for modifications.\n\n")
+			printf("TortoiseGitProc.exe /command:repostatus /path:\"")}
+			{if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
 }
 
 

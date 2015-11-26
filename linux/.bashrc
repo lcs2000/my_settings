@@ -42,6 +42,22 @@ export DEF_PATH
 export PATH
 export USE_CCACHE=1
 
+#ctags
+alias mkctags='time ctags --extra=f --links=no --verbose -R . '
+alias mkgtags='time gtags --skip-unreadable  --verbose '
+function mkgtags_nolink()
+{
+    # $1 to set manually excluded folders seperated by comma (,) 
+    linkFolders=$(find -type l -xtype d 2>/dev/null | awk '{ p=substr($0,2); gsub("/","\\/",p ); printf ( "%s\\/,", p)}')
+    sed "s/:skip=/:skip=$1,$linkFolders/g" /etc/gtags.conf > gtags.conf;
+    mkgtags
+}
+alias mkgtags_sdk2='mkgtags_nolink "kernel3-KERNEL_ML_3.4.*"'
+alias mkgtags_android='mkgtags_nolink'
+alias updgtags='time global -u' # To update gtags
+
+
+
 # for 97401c1 target board
 alias stb97401r40=' export PATH=/opt/toolchains/crosstools_sf-linux-2.6.12.0_gcc-3.4.6-20_uclibc-0.9.28-20050817-20070131/bin:$DEF_PATH; export LINUX=/home/jack/svn/titanium/trunk/2612-4.0/stblinux-2.6.12; cd /home/jack/svn/titanium/trunk/refsw-20070327.97401; /bin/echo REF:source ./build_brutus.bash pisces101 y S21_VOD_CLIENT_SUPPORT=y DDR_256M=y VERIMATRIX_DRM=y install'
 # for 97401b0 

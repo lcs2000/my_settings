@@ -17,6 +17,10 @@ if [ -e /usr/share/terminfo/x/xterm-256color ]; then
 else
         export TERM='xterm-color'
 fi
+
+if ((BASH_VERSINFO[0] >= 4)) && ((BASH_VERSINFO[1] >= 2))
+    then shopt -s direxpand
+fi
 #export LC_COLLATE="en_US.UTF-8"
 #export LC_CTYPE="en_US.UTF-8"
 #export LC_MESSAGES="en_US.UTF-8"

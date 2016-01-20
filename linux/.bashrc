@@ -7,15 +7,21 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
+# fs setings
+export WINDOWS_DISK="T:"    
+export WINDOWS_EDITOR="notepad++"   
+source ~/bin/fs.sh
+
 # Setting the color of promt to red when login with root account,
 # and green when login with non root account.
 export PS1="\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]"
-export PATH=/usr/java/jdk1.6.0_45/bin/:~/tools/:~/bin:$PATH
+export PATH=~/tools/:~/bin:$PATH
 export SVN_EDITOR=vi
 if [ -e /usr/share/terminfo/x/xterm-256color ]; then
         export TERM='xterm-256color'
 else
-        export TERM='xterm-color'
+        #export TERM='xterm-color'
+        export TERM='xterm'
 fi
 
 if ((BASH_VERSINFO[0] >= 4)) && ((BASH_VERSINFO[1] >= 2))
@@ -59,7 +65,7 @@ function mkgtags_nolink()
 alias mkgtags_sdk2='mkgtags_nolink "kernel3-KERNEL_ML_3.4.*"'
 alias mkgtags_android='mkgtags_nolink'
 alias updgtags='time global -u' # To update gtags
-
+function rpmEx() { rpm2cpio $1 | cpio -idmv; }
 
 
 # for 97401c1 target board
@@ -90,24 +96,6 @@ alias kernel='cd /home/jack/svn/titanium/trunk/2612-4.0/'
 #---------------------------------------------------------------------------
 #------                         fucntion                             -------
 #---------------------------------------------------------------------------
-DISK_LETTER="T:"
-EDITOR="notepad++"
-# Source global definitions
-## shell function to find file
-## Usage:
-##      ff <File_name>
-## Example:
-##      ff *.c  -- Find all *.c files
-##      ff *.[ch]   -- Find all *.c or *.h files
-##      ff Makefile
-## NOTE:
-##      Filename is case-sensitive
-ff()
-{
-    /bin/echo -e "time find \\( -path './BSEAV/bin' -o -name 'AppLibs' -o -name '.svn' -o -name '.git' -o -path './out' \\) -prune -o -name \"$1\" -print | sed 's;./;'`pwd`'/;' | sed 's;'\"$HOME\"';'\"$DISK_LETTER\"';' |sed 's;/;\\\\\;g'"
-    /bin/echo -e "( \"shell style\" wildcard. Ex: ff '*fs*' )\n"
-    time find \( -path ./BSEAV/bin -o -name AppLibs -o -name .svn -o -name .git -o -path ./out \) -prune -o -name "$1" -print | sed 's;./;'`pwd`'/;' | sed 's;'"$HOME"';'"$EDITOR ""$DISK_LETTER"';' |sed 's;/;\\;g'
-}
 
 svnmod()
 {
@@ -158,17 +146,6 @@ svnrm()
     /bin/echo "svn status | grep ^\?| awk '{print \$2}' | xargs --verbose -r rm -rf"
     svn status | grep ^\?| awk '{print $2}' | xargs --verbose -r rm -rf
 }
-## shell function to find string in files
-## Usage:
-##      fstr <File_name> <String> [other grep options]
-## Example:
-##      fstr *.[ch] Ikanos -i   -- Find 'Ikanos' in *.c or *.h with 'ignore case' option
-## NOTE:
-##      Filename is case-sensitive
-fstr()
-{
-    find -name $1 | xargs grep $3 $4 $5 -n -E $2
-}
 
 gitmod()
 {
@@ -197,83 +174,6 @@ gitmodt()
 }
 
 
-fshelp()
-{
-    fs.sh -h
-}
-
-
-## NOTE:
-## Use fshelp to get the help
-##### History
-## 2012/4/16 rev. 2.0: To exclude Applibs folder (Search refsw and AppLibs seperately)
-##      Original was: time find -name '\.svn' -prune -o -type f -print0 | xargs -0 grep -n -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always $option "$pattern"  | convertpath
-## 2012/4/17 rev. 2.1: v2.0 + ignore 'BSEAV/bin'
-##      Original was: time find -type d \( -name '\.svn' -o -name 'AppLibs' \) -prune -o -type f -print0 | xargs -0 grep -n -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always $option "$pattern"  | convertpath
-
-fs()
-{
-    fs.sh "$@"
-}
-
-
-# special version of fs(): find in current directory, no recursion
-fsu()
-{
-    pattern=$1
-    option=
-    if [ "$#" -gt "1" ] ; then
-        shift
-        option=$*
-    fi        
-    echo -e "grep -n -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always $option '$pattern' * |grep -v '.svn' | convertpath:\n"
-    grep -n -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --color=always $option "$pattern" * |grep -v '.svn' | convertpath
-}
-
-# special version of fs(): find pattern only in '*.c'
-fsc()
-{
-    fs.sh "$@" --include=\'\*.c\' --include=\'\*.cpp\'
-}
-# special version of fs(): find pattern only in '*.h'
-fsh()
-{
-    fs.sh "$@" --include=\'\*.h\'
-}
-
-# special version of fs(): find function declaration in *.c or *.cpp and *.h
-# TRICKS: the "--color=always" option will generate a ";31m" which will bother ';' pattern
-#           so we have to disable color and enable it after find it
-# Yet another TRICKS: Finally I decide to include *.h also, so we don't have to search for ';'
-#       instead, we'll have to search the line begin with [a-zA-Z] so that it's a decalration 
-fsd()
-{
-    pattern=$1
-    option=
-    if [ "$#" -gt "1" ] ; then
-        shift
-        option=$*
-    fi        
-    echo -e "egrep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --include='*.c' --include='*.cpp' --include='*.h' $option '^[a-zA-Z].*$pattern|^.*}.*$pattern' * |grep -v '.svn' |grep --color=always '$pattern' | convertpath :\n"
-    egrep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --include='*.c' --include='*.cpp' --include='*.h' $option "^[a-zA-Z].*$pattern|^.*}.*$pattern" * |grep -v '.svn' |grep --color=always "$pattern" | convertpath
-}
-
-
-# special version of fsd(): find Structure declaration in *.c or *.cpp and *.h
-fsds()
-{
-    pattern=$1
-    option=
-    if [ "$#" -gt "1" ] ; then
-        shift
-        option=$*
-    fi        
-    echo -e "egrep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --include='*.c' --include='*.cpp' --include='*.h' $option '^.*}.*$pattern' * |grep -v '.svn' |grep --color=always '$pattern' | convertpath :\n"
-    egrep -n -r -I --exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --include='*.c' --include='*.cpp' --include='*.h' $option "^.*}.*$pattern" * |grep -v '.svn' |grep --color=always "$pattern" | convertpath
-}
-
-
-# Indicate compile error
 showerr()
 {
 

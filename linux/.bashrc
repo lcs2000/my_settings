@@ -285,6 +285,18 @@ c7405()
     		opt_applibs="qtwebkit -j4"
     		applibs_ver=${brutus_ver}
 		;;
+	    "XTV250")
+    		project="seediq"
+    		model_name=XTV250
+    		kernel_ver=3.14-1.12
+    		export STBLINUX_VER=3.14
+    		export TOOLCHAINS_DIR=/opt/toolchains/stbgcc-4.8-1.4
+    		brutus_ver=refsw-20160329.unified-16.1
+    		#opt_brutus="brutus noDNOT262A livestream"
+    		#extra_feature="noipv6 novc1 noavi"
+    		#opt_applibs="qtwebkit -j4"
+    		#applibs_ver=${brutus_ver}
+		;;
 	    "webkit")
             	opt_brutus="${opt_brutus} dlna"
 		;;

@@ -97,6 +97,15 @@ alias kernel='cd /home/jack/svn/titanium/trunk/2612-4.0/'
 #------                         fucntion                             -------
 #---------------------------------------------------------------------------
 
+adbc()
+{
+  if [ "$1" == "" ] ; then
+	echo "error: Please input target device IP!!"
+  else 
+  	adb connect $1 && adb root && sleep 1 && adb connect $1 && adb remount
+  fi
+}
+
 svnmod()
 {
 ##    /bin/echo "svn status | grep ^[^?\" \"]| awk '{status=substr(\$0, 0, 1); path=substr(\$0, 8);printf(\"%s--\n%s\n\",status,path)}' | convertpath"
@@ -677,4 +686,90 @@ c7241()
     /bin/echo "At kernel:"
     /bin/echo "Usage:   upgrade [upgrade_url] [reboot]"
     /bin/echo "Example: upgrade ftp://$host_ip/$image_name 1"
+}
+
+function gettop
+{
+  local TOPFILE="BSEAV/build"
+  [ $# -gt 0 ] && TOPFILE=$1  
+    while [ $PWD != "/" ]
+    do
+        if [ -n "$PWD" -a -e "$PWD/$TOPFILE" ] ; then
+        echo $PWD
+        return
+        fi
+        cd ..
+    done
+}
+
+
+function godir() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: godir "
+        return
+    fi
+
+    T=$(gettop)
+
+ if [ -z $T ]; then
+  echo "Cannot find the root directory which contains '$TOPFILE'"
+  return
+ fi
+ 
+
+    if [[ ! -f $T/filelist ]]; then
+        echo -n "Creating index..."
+        (cd $T; find . -wholename ./out -prune -o -wholename ./.repo -prune -o -type f > filelist)
+        echo " Done"
+        echo ""
+    fi
+    local lines
+    lines=($(\grep "$1" $T/filelist | sed -e 's/\/[^/]*$//' | sort | uniq))
+    if [[ ${#lines[@]} = 0 ]]; then
+        echo "Not found"
+        return
+    fi
+    local pathname
+    local choice
+    if [[ ${#lines[@]} > 1 ]]; then
+        while [[ -z "$pathname" ]]; do
+            local index=1
+            local line
+            for line in ${lines[@]}; do
+                printf "%6s %s\n" "[$index]" $line
+                index=$(($index + 1))
+            done
+            echo
+            echo -n "Select one: "
+            unset choice
+            read choice
+            if [[ $choice -gt ${#lines[@]} || $choice -lt 1 ]]; then
+                echo "Invalid choice"
+                continue
+            fi
+            pathname=${lines[$(($choice-1))]}
+        done
+    else
+        pathname=${lines[0]}
+    fi
+    cd $T/$pathname
+}
+function croot()
+{
+    T=$(gettop)
+    if [ "$T" ]; then
+        if [ "$1" ]; then
+            \cd $(gettop)/$1
+        else
+            \cd $(gettop)
+        fi
+    else
+        echo "Couldn't locate the top of the tree.  Try setting TOP."
+    fi
+}
+
+function cgrep()
+{
+    find . -name .repo -prune -o -name .git -prune -o -name out -prune -o -name .svn -prune -o -name obj.* -prune -o -type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
+        -exec grep --color -n "$@" {} +
 }

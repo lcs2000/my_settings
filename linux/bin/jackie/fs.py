@@ -225,7 +225,7 @@ def genFsCmdFile(pattern, *options):
     awk_line.append( '            last_path = path;' )
     awk_line.append( '        }' )
     awk_line.append( '        gsub("/", "\\\\", path);' )
-    awk_line.append( '        printf(fmt"%s %s%s"lnfmt fmt_normal"\\n", editor, disk, path, $2);' )
+    awk_line.append( '        printf("%s%s %s%s" lnfmt "%s\\n", fmt, editor, disk, path, $2, fmt_normal);' )
     awk_line.append( '        printf("%s\\n", substr($0, 3+length($1)+length($2)));' )
     awk_line.append( '        line_count++;' )
     awk_line.append( '    }' )

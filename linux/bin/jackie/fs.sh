@@ -2,6 +2,7 @@
 
 export FS_REL_VER="v3.5.0"
 export FS_REL_DATE="2015/12/22"
+export WINDOWS_EDITOR="code"
 #############################################################################
 ### Revison History
 ###	2015/12/22  v3.5.0

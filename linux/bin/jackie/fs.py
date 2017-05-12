@@ -26,9 +26,11 @@ else:
     EDITOR="notepad++"
 
 if EDITOR == "notepad++":
-    LN_NUM_FORMAT=" -n"
+    LN_NUM_FORMAT=" -n%d"
+elif EDITOR == "code":
+    LN_NUM_FORMAT=":%d -g"
 else:    # Assume it's UltraEdit
-    LN_NUM_FORMAT="/"
+    LN_NUM_FORMAT="/%d"
     
 FS_EXCLUDE_DIRS="-name .svn -o -name AppLibs -o -path ./BSEAV/bin -o -path ./out -o -name .git -o -name .repo -o -name objs"
 EXCLUDE_FILES="--exclude='*.d' --exclude='*.o' --exclude='*.so' --exclude='*.map' --exclude='ctags.tmp' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS' --exclude='gtags.conf' --exclude='tags'"
@@ -223,7 +225,7 @@ def genFsCmdFile(pattern, *options):
     awk_line.append( '            last_path = path;' )
     awk_line.append( '        }' )
     awk_line.append( '        gsub("/", "\\\\", path);' )
-    awk_line.append( '        printf("%s%s %s%s%s%s%s\\n", fmt, editor, disk, path, lnfmt, $2, fmt_normal);' )
+    awk_line.append( '        printf(fmt"%s %s%s"lnfmt fmt_normal"\\n", editor, disk, path, $2);' )
     awk_line.append( '        printf("%s\\n", substr($0, 3+length($1)+length($2)));' )
     awk_line.append( '        line_count++;' )
     awk_line.append( '    }' )
@@ -349,7 +351,7 @@ def genFfCmdFile(pattern, *options):
         awk_line.append( '    path=root_path"/"$1;' )
         awk_line.append( '    gsub("/", "\\\\", path);' )
         awk_line.append( '    if (linenum > 1)' )
-        awk_line.append( '        printf("%s %s%s%s%d\\n", editor, disk, path, lnfmt, linenum);' )
+        awk_line.append( '        printf("%s %s%s" lnfmt "\\n", editor, disk, path, linenum);' )
         awk_line.append( '    else' )
         awk_line.append( '        printf("%s %s%s\\n", editor, disk, path);' )
     else:

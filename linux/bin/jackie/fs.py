@@ -3,7 +3,6 @@
 # This script works on Python 2.7
 import os
 import sys
-import cStringIO
 from subprocess import *
 
 #### User-specific variables, change to meet actual situations  ##############
@@ -403,7 +402,7 @@ def main(argv):
     elif argv[1] == "ff":
         ff (argv[2:])
     else:
-        print "Wrong usage! currently supported command: 'fs' and 'ff'"
+        print ("Wrong usage! currently supported command: 'fs' and 'ff'")
 
 
 if __name__ == "__main__":

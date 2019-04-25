@@ -1,5 +1,5 @@
-git status $* | awk -v disk=T: -v root_path=`pwd| sed 's;'"$HOME"';;'` -F '[:]' \
+git status -s $* | awk -v disk=T: -v root_path=`pwd| sed 's;'"$HOME"';;'` \
 'BEGIN{gsub("/","\\", root_path);printf("TortoiseGitProc.exe /command:repostatus /path:\"")} \
-    $1 ~ /file$/ || $1 ~ /modified$/ || $1 ~ /deleted$/ \
-    {gsub(/^[[:blank:]]+/, "",$2);gsub("/", "\\",$2);if (NR>1) printf("*");printf("%s%s\\%s",disk,root_path,$2);} \
+    $1 ~ /^[A|D|M]/ \
+    {gsub("/", "\\",$2);if (NR>1) printf("*");printf("%s%s\\%s",disk,root_path,$2);} \
     END{print "\""}'

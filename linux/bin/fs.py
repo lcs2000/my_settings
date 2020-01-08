@@ -4,6 +4,15 @@
 import os
 import sys
 from subprocess import *
+##from pathlib import Path
+##home = str(Path.home())
+from os.path import expanduser
+home = expanduser("~")
+resultFilePath = home + '/.fs.result'
+openFileInLinux = 1
+convertToDos = 1
+if openFileInLinux:
+    convertToDos = 0
 
 #### User-specific variables, change to meet actual situations  ##############
 # Default DISK_LETTER is U: for outside of MOCK
@@ -125,7 +134,7 @@ def genFsCmdFile(pattern, *options):
         md=int(fsDepth)
     else:
         md=9999
-        
+
     # Then check if searching path is assigned
     # NOTE: Put a 'smart' check on the path: first check if it's a relative path, otherwise treat it as a absolute path.
     spath = "."
@@ -201,7 +210,10 @@ def genFsCmdFile(pattern, *options):
     
     # The path under DISK_LETTER which we'll use in DOS 
     path_under_disk = DISK_ROOT + os.getcwd().replace(os.environ.get('HOME'), D_HOME)
-    
+    if os.path.exists(resultFilePath):
+        os.remove(resultFilePath)
+    tmp_file=open(resultFilePath, 'w+')
+    tmp_file.close()
     awk_opt  = "-F':' "
     awk_opt += ' -v editor="' + EDITOR + '"'
     awk_opt += ' -v disk=' + DISK_LETTER 
@@ -210,21 +222,29 @@ def genFsCmdFile(pattern, *options):
     awk_opt += ' -v fmt_normal=' + LINE_OUTPUT_NORMAL 
     awk_opt += ' -v lnfmt="' + LN_NUM_FORMAT + '"'
     awk_opt += ' -v last_path='
-    
+    awk_opt += ' -v resultFilePath=' + resultFilePath
     # Escape noteice: use '\\' to reprent '\' in awk programe
     awk_line = []
-    awk_line.append( 'BEGIN {}' )
+    awk_line.append( 'BEGIN {fileCount=0}' )
     awk_line.append( '{' )
     awk_line.append( '    if ( NF >= 3 )' )
     awk_line.append( '    {' )
-    awk_line.append( '        path=root_path"/"$1;' )
+    #awk_line.append( '        path=gsub("^./", "", $1);' )
+    if convertToDos:
+        awk_line.append( '        path=root_path"/"$1;' )
+        awk_line.append( '        gsub("/", "\\\\", path);' )
+    else:
+        awk_line.append( '        path=$1;' )
+        awk_line.append( '        disk="";' )
     awk_line.append( '        if ( path != last_path )' )
     awk_line.append( '        {' )
     awk_line.append( '            file_count++;' )
     awk_line.append( '            last_path = path;' )
     awk_line.append( '        }' )
-    awk_line.append( '        gsub("/", "\\\\", path);' )
+    awk_line.append( '        fileCount++;' )
+    awk_line.append( '        printf("\\n(%d)\\n", fileCount);' )
     awk_line.append( '        printf("%s%s %s%s" lnfmt "%s\\n", fmt, editor, disk, path, $2, fmt_normal);' )
+    awk_line.append( '        printf("%s %s%s" lnfmt "\\n", editor, disk, path, $2) >> resultFilePath;' )
     awk_line.append( '        printf("%s\\n", substr($0, 3+length($1)+length($2)));' )
     awk_line.append( '        line_count++;' )
     awk_line.append( '    }' )
@@ -250,7 +270,8 @@ def genFsCmdFile(pattern, *options):
     f.write ( cmd_find + " | " + cmd_grep + cmd_grep2 + cmd_grep3 + cmd_grep4 + cmd_grep5 + cmd_grep6 + cmd_grep7 + cmd_grep8 + " | " + cmd_awk )
     
     f.write ('\nexport GREP_COLORS=$cur_grep_color\n')
-
+    if openFileInLinux:
+        f.write( 'select_line_to_run.sh ' + resultFilePath )
     f.close()
     
 

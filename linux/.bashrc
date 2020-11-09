@@ -17,12 +17,19 @@ source ~/bin/fs.sh
 export PS1="\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]"
 export PATH=~/tools/:~/bin:$PATH
 export SVN_EDITOR=vi
-if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+if [ -e /lib/terminfo/x/xterm-256color ]; then
         export TERM='xterm-256color'
+	export TERMINFO=/lib/terminfo
 else
         #export TERM='xterm-color'
-        export TERM='xterm'
+        #export TERM='xterm'
+        export TERM='screen-256color'
+        #export TERM='xterm-256color'
 fi
+
+#if [ -f "${HOME}/bin/ssh_login" ] ; then
+#	. "${HOME}/bin/ssh_login"
+#fi
 
 if ((BASH_VERSINFO[0] >= 4)) && ((BASH_VERSINFO[1] >= 2))
     then shopt -s direxpand
@@ -38,9 +45,37 @@ fi
 export EDITOR='vim'
 unset SSH_ASKPASS
 
+# Avoid duplicates
+export HISTCONTROL=ignoredups:erasedups
+# When the shell exits, append to the history file instead of overwriting it
+shopt -s histappend
+
+#so as not to be disturbed by Ctrl-S ctrl-Q in terminals
+stty -ixon
 
 NPROC=`nproc`
 
+
+# Compiler environment
+export USE_CCACHE=1
+ccache -M 100G
+umask 0022
+
+#---------------------------------------------------------------------------
+#------                         auto script			     -------
+#---------------------------------------------------------------------------
+
+# Set command when login(update time, execute tmux)
+# Execute command when login
+if [ $SHLVL != "2" ] ; then
+    SESSIONNAME="main"
+    tmux has-session -t $SESSIONNAME &> /dev/null
+
+    if [ $? != 0 ]; then
+        tmux new-session -s $SESSIONNAME -d
+    fi
+    tmux attach -t $SESSIONNAME
+fi
 
 #---------------------------------------------------------------------------
 #------                         alias                                -------
@@ -147,7 +182,7 @@ svnmodt()
     if [ "$#" -gt "0" ] ; then
         /bin/echo "Check for modifications in "$*
     fi
-    svnmod $*|grep ^$WINDOWS_DISK | awk 'BEGIN{printf("Press <WIN>+Q and type \"svnmod\" to pop up TortoiseSVN window for modifications.\n\nTortoiseProc.exe /command:repostatus /path:\n\n\n\"")} {if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
+    svnmod $*|grep ^$WINDOWS_DISK | awk 'BEGIN{printf("Press <WIN>+Q and type \"svnmod\" to pop up TortoiseSVN window for modifications.\n\nTortoiseProc.exe /command:repostatus /path:\"")} {if (NR==1) printf("%s",$1); else printf("*%s",$1)} END {printf("\"\n\n\nTotal %d files\n", NR)}'
 }
 
 svnrm()
@@ -704,6 +739,7 @@ c7241()
 function gettop
 {
   local TOPFILE="BSEAV/build"
+  local TOPFILE="source/tee"
   [ $# -gt 0 ] && TOPFILE=$1  
     while [ $PWD != "/" ]
     do

@@ -1,10 +1,14 @@
 #!/bin/sh
 
-export FS_REL_VER="v3.5.0"
-export FS_REL_DATE="2015/12/22"
-export WINDOWS_EDITOR="code"
+export FS_REL_VER="v3.6.1"
+export FS_REL_DATE="2021/1/11"
 #############################################################################
 ### Revison History
+###	2021/1/11   v3.6.1
+###     [bugfix] Fix the bug that ff wildcard (Ex.: ff *.c) search gets nothing
+###	2021/1/6    v3.6.0
+###     [add] Allow fs/ff to run without converting path (run 'fs4linux' first)
+###     [add] Fix the bug that ff cannot accept dir/filename pattern.
 ###	2015/12/22  v3.5.0
 ###     [add] Add '-i' to 'ff' to allow search filename and ignore case
 ###     [add] Add '-h' and '--help' option to fs/ff to show usage
@@ -46,6 +50,7 @@ export FF_CMD_FILE="$HOME/.ff_cmd_file"
 ###     export WINDOWS_EDITOR="notepad++"   # default is notepad++, this can be skipped if you use notepad++
 ###     source <path_where_fs.sh_is_located>/fs.sh 
 ###     export PATH=$PATH:<path_where_fs.sh_is_located>
+### NOTE: use 'set -f' before source to avoid file globbing. 
 ################################################################################
 function fs() 
 { 
@@ -72,7 +77,9 @@ function fs()
 	fi
 	
 	if [ $? == 0 ]; then 
+		set -f
 		source $FS_CMD_FILE
+		set +f
 	fi
 }; 
 
@@ -369,5 +376,24 @@ ll_rm_resetGlob()
     set +f
 }
 alias ffrm='noGlob_getOption; ll_rm_resetGlob'
+
+fs4linux()
+{
+    export WINDOWS_DISK="."
+    export WINDOWS_EDITOR=" "    
+    export FS_PATH_TYPE="LINUX"
+
+    echo "Run fs/ff and keep Linux path, don't convert to Windows path."
+}
+
+fs4windows()
+{
+    export WINDOWS_DISK=
+    export WINDOWS_EDITOR=  
+    export FS_PATH_TYPE=
+
+    echo "Run fs/ff for Windows (do path conversion)"
+}
+
 
 

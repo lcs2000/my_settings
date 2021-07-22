@@ -8,8 +8,9 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # fs setings
-export WINDOWS_DISK="T:"    
-export WINDOWS_EDITOR="notepad++"   
+export WINDOWS_DISK="."    
+export WINDOWS_EDITOR="code"
+export FS_PATH_TYPE="LINUX"
 source ~/bin/fs.sh
 
 # Setting the color of promt to red when login with root account,
